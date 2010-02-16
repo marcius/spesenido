@@ -1,0 +1,40 @@
+<?php
+$this->breadcrumbs=array(
+	'Statistics'=>array('index'),
+);
+?>
+<h1>View Statistics Account by Month</h1>
+
+<ul class="actions">
+    <li><?php echo CHtml::link('Account by Month', array('viewAccountMonth')); ?></li>
+    <li><?php echo CHtml::link('Account by Classification', array('viewAccountClassification')); ?></li>
+    <li><?php echo CHtml::link('Test jqGrid', array('testJqGrid')); ?></li>
+</ul><!-- actions -->
+
+<?php $this->widget('ext.jqgrid.CJuiJqGrid', array(
+         'modelClass'=>'Account', // used for columns label
+         'htmlOptions'=>array(
+             'id'=>'grid',
+         ),
+         'navbar'=>true,
+         'options'=>array(
+             'height'=>400,
+             'autowidth'=>true,
+             'datatype'=>'json',
+             'url'=>Yii::app()->createUrl('index'), // ajax request for data
+             'colNames'=>array('id','name'), // model attributes
+         //    'colModel'=>array( // optional, this is generated automatically from colNames if 'modelClass' is defined
+        //        array('index'=>'id','name'=>'id','hidden'=>true)
+        //        array('index'=>'column1','name'=>'column1')
+        //        array('index'=>'column2','name'=>'column2')
+         //    ),
+             'rowNum'=>20,
+             'rowList'=>array(20,50,100),
+             'sortname'=>'name',
+             'sortorder'=>"asc",
+             'caption'=>"Grid title",
+         )
+     )
+ );
+?> 
+
