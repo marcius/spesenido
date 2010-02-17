@@ -32,7 +32,7 @@ class TransactionController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('quickcreate','create','update'),
+				'actions'=>array('quickcreate','withdrawalcreate','create','update'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -69,10 +69,6 @@ class TransactionController extends Controller
 		));
 	}
 
-	/**
-	 * Creates a new model.
-	 * If creation is successful, the browser will be redirected to the 'view' page.
-	 */
 	public function actionQuickcreate()
 	{
 		$modelTransaction=new Transaction;
@@ -100,10 +96,46 @@ class TransactionController extends Controller
 		));
 	}
 
-	/**
-	 * Creates a new model.
-	 * If creation is successful, the browser will be redirected to the 'view' page.
-	 */
+    public function actionWithdrawalcreate()
+    {
+        $modelTransaction=new Transaction;
+        $modelTransaction->account_id = 43;
+        $modelPayment=new Payment;
+        $modelPayment->payment_type_id = 2;
+        if(isset($_POST['Transaction']))
+        {
+            $modelTransaction->attributes = $_POST['Transaction'];
+            $amount = $modelTransaction->amount;
+            $modelTransaction->ref_period_begin_date = $modelTransaction->date;
+            $modelTransaction->ref_period_end_date = $modelTransaction->date;
+            $modelTransaction->amount = 0;
+            if($modelTransaction->save())
+            {
+                $modelPayment->attributes = $_POST['Payment'];
+                $modelPayment->transaction_id = $modelTransaction->id;
+                $modelPayment->payer_subject_id = $modelTransaction->payer_subject_id;
+                $modelPayment->date = $modelTransaction->date;
+                $modelPayment->amount = $amount * -1; 
+                if($modelPayment->save(false)) {
+                    $modelPayment=new Payment;
+                    $modelPayment->attributes = $_POST['Payment'];
+                    $modelPayment->transaction_id = $modelTransaction->id;
+                    $modelPayment->payer_subject_id = $modelTransaction->payer_subject_id;
+                    $modelPayment->date = $modelTransaction->date;
+                    $modelPayment->amount = $amount; 
+                    $modelPayment->payment_type_id = 4;
+                    if($modelPayment->save(false))
+                        $this->redirect(array('view', 'id'=>$modelTransaction->id));
+                }
+            }
+        }
+
+        $this->render('quickcreate',array(
+            'model'=>$modelTransaction,
+            'modelP'=>$modelPayment,
+        ));
+    }
+
 	public function actionCreate()
 	{
 		$model=new Transaction;

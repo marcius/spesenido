@@ -9,6 +9,7 @@ $this->breadcrumbs=array(
 <ul class="actions">
 	<li><?php echo CHtml::link('List Transaction',array('index')); ?></li>
 	<li><?php echo CHtml::link('Create Transaction',array('quickcreate')); ?></li>
+    <li><?php echo CHtml::link('Create Withdrawal',array('withdrawalcreate')); ?></li>
 </ul><!-- actions -->
 
 <?php $this->widget('zii.widgets.grid.CGridView', array(
