@@ -1,14 +1,15 @@
 <?php
 $this->breadcrumbs=array(
-	'Statistics'=>array('index'),
+    'Statistics'=>array('index'),
 );
 ?>
-<h1>View Statistics Account by Month</h1>
+<h1>View account totals by month</h1>
 
-<ul class="actions">
-    <li><?php echo CHtml::link('Account by Month', array('viewAccountMonth')); ?></li>
-    <li><?php echo CHtml::link('Account by Year', array('viewAccountYear')); ?></li>
+   <ul class="actions">
+    <li><?php echo CHtml::link('Account totals by month',array('viewAccountMonth')); ?></li>
+    <li><?php echo CHtml::link('Account totals by custom filter',array('viewAccountCustFilter')); ?></li>
 </ul><!-- actions -->
+
 
 <div class="form">
 

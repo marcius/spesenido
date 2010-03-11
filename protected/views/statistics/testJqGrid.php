@@ -12,27 +12,60 @@ $this->breadcrumbs=array(
 </ul><!-- actions -->
 
 <?php $this->widget('ext.jqgrid.CJuiJqGrid', array(
-         'modelClass'=>'Account', // used for columns label
+//         'modelClass'=>'Account', // used for columns label
          'htmlOptions'=>array(
-             'id'=>'grid',
+             'id'=>'mygrid1',
          ),
          'navbar'=>true,
          'options'=>array(
-             'height'=>400,
+             'height'=>'auto',
              'autowidth'=>true,
              'datatype'=>'json',
-             'url'=>Yii::app()->createUrl('index'), // ajax request for data
+              'url' => '/index.php?r=test/uno',
+//             'url'=>Yii::app()->createUrl('index'), // ajax request for data
              'colNames'=>array('id','name'), // model attributes
-         //    'colModel'=>array( // optional, this is generated automatically from colNames if 'modelClass' is defined
-        //        array('index'=>'id','name'=>'id','hidden'=>true)
-        //        array('index'=>'column1','name'=>'column1')
-        //        array('index'=>'column2','name'=>'column2')
-         //    ),
-             'rowNum'=>20,
+             'colModel'=>array( // optional, this is generated automatically from colNames if 'modelClass' is defined
+                array('index'=>'id', 'name'=>'id', 'hidden'=>true),
+                array('index'=>'name', 'name'=>'name'),
+             ),
+             'rowNum'=>10,
              'rowList'=>array(20,50,100),
              'sortname'=>'name',
              'sortorder'=>"asc",
-             'caption'=>"Grid title",
+             'caption'=>"My first grid",
+         )
+     )
+ );
+?> 
+
+<br/>
+
+<?php $this->widget('ext.jqgrid.CJuiJqGrid', array(
+//         'modelClass'=>'Account', // used for columns label
+         'htmlOptions'=>array(
+             'id'=>'mygrid2',
+         ),
+         'navbar'=>true,
+         'options'=>array(
+             'height'=>'auto',
+             'autowidth'=>true,
+             'datatype'=>'json',
+              'url' => '/index.php?r=test/due',
+//             'url'=>Yii::app()->createUrl('index'), // ajax request for data
+             'colNames'=>array('id','name', 'amount'), // model attributes
+             'colModel'=>array( // optional, this is generated automatically from colNames if 'modelClass' is defined
+                array('index'=>'id', 'name'=>'id', 'hidden'=>true   ),
+                array('index'=>'name', 'name'=>'name'),
+                array('index'=>'sum_amount', 'name'=>'sum_amount'),
+             ),
+             'rowNum'=>-1,
+//             'rowList'=>array(20,50,100),
+             'sortname'=>'name',
+             'sortorder'=>"asc",
+             'caption'=>"My second grid",
+             'footerrow' => true,
+             'userDataOnFooter' => true,
+             
          )
      )
  );
