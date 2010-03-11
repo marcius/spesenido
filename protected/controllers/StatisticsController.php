@@ -28,7 +28,7 @@ class StatisticsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','viewAccountMonth', 'viewAccountClassification'),
+				'actions'=>array('index', 'viewAccountMonth', 'viewAccountCustFilter', 'testJqGrid'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -37,9 +37,11 @@ class StatisticsController extends Controller
 		);
 	}
 
-	/**
-	 * Displays a particular model.
-	 */
+    public function actionIndex()
+    {
+        $this->render('index');
+    }
+
 	public function actionViewAccountMonth()
 	{
         $searchModel=new StatisticsSearch;
@@ -52,7 +54,7 @@ class StatisticsController extends Controller
                 $providerOptions = $searchModel->getProviderOptions();
             }
         }
-        $dataProvider=new CSQLDataProvider('MonthStat', $providerOptions);
+        $dataProvider=new CStatMonthDataProvider('MonthStat', $providerOptions);
         
 		$this->render('viewAccountMonth', array(
                 'dataProvider'=>$dataProvider,
@@ -61,40 +63,16 @@ class StatisticsController extends Controller
         );
 	}
 
-    public function actionViewAccountClassification()
+    public function actionViewAccountCustFilter()
     {
-        $searchModel=new StatisticsSearch;
-        $dataProvider=new CActiveDataProvider('Account');
-        // Construct the json data
-        $connection = Yii::app()->db;
-        $response->page = 1;
-        $response->total = 1;
-        $response->records = $connection->createCommand("SELECT count(*) from accounts")->queryScalar();
-        $command=$connection->createCommand("SELECT id, name from accounts");
-        $reader=$command->query();
-        $i=0;
-        foreach($reader as $row) {
-            $response->rows[$i]['id']=$row[id];
-            $response->rows[$i]['cell']=array($row[id],$row[name]);
-            $i++;
-        } 
-        $jsondata = json_encode($response);
-        
-        $this->render('viewAccountClassification',array(
-            'dataProvider'=>$dataProvider,
-            'searchModel'=>$searchModel,
-            'statData'=>$jsondata,
-        ));
-    }    
-    public function actionIndex()
-    {
-        $this->render('index');
+        $this->render('viewAccountCustFilter');
     }
 
-    public function actionJqGridTest()
+    public function actionTestJqGrid()
     {
-        $this->render('jqGridTest');
+        $this->render('testJqGrid');
     }
+
     
     public function actionJqGridTestData()
     {
