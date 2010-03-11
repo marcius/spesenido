@@ -147,6 +147,9 @@ $this->breadcrumbs=array(
              ?>
             <?php echo CHtml::error($searchModel,'ref_period_date_from'); ?>
         </div>
+    </div>
+
+    <div class="row">
         <div class="column">
             <?php echo CHtml::activeLabelEx($searchModel,'ref_period_date_to'); ?>
             <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(

@@ -1,6 +1,6 @@
 <?php
 
-class PaymentSearch extends CFormModel
+class AccountSearch extends CFormModel
 {
 	public $account_id;
     public $counterparty;

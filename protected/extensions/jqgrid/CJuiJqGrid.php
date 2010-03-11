@@ -218,6 +218,8 @@ class CJuiJqGrid extends CJuiWidget
 	 */
 	private function prepareColumns()
 	{
+        if(!is_array($this->options['colModel'])) 
+            $this->options['colModel'] = array();
 		$colModels = array_merge($this->options['colModel'],array());
 		foreach ($this->options['colNames'] as $i=>$colName)
 		{

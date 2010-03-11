@@ -27,7 +27,7 @@
  * @package system.web
  * @since 1.1
  */
-class CSQLDataProvider extends CDataProvider
+class CStatMonthDataProvider extends CDataProvider
 {
 	/**
 	 * @var string the primary ActiveRecord class name. The {@link getData()} method
@@ -41,7 +41,6 @@ class CSQLDataProvider extends CDataProvider
 	public $keyAttribute;
 
 	private $_criteria;
-    private $_sql;
 
 	/**
 	 * Constructor.
@@ -76,11 +75,6 @@ class CSQLDataProvider extends CDataProvider
 		$this->_criteria=$value instanceof CDbCriteria ? $value : new CDbCriteria($value);
 	}
 
-    public function setSQL($value)
-    {
-        $this->_sql=$value;
-    }
-
 	/**
 	 * @return CSort the sorting object. If this is false, it means the sorting is disabled.
 	 */
@@ -95,7 +89,23 @@ class CSQLDataProvider extends CDataProvider
 	 */
 	protected function fetchData()
 	{
-        $command=Yii::app()->db->createCommand($this->_sql);
+        $sql = CSQLTools::createPivotQuery(null, 
+            'transactions join accounts on transactions.account_id = accounts.id',
+            "accounts.name", 
+            array(                                        
+            '2009_10' => "date >= '2009-10-01' and date < '2009-11-01'",
+            '2009_11' => "date >= '2009-11-01' and date < '2009-12-01'",
+            '2009_12' => "date >= '2009-12-01' and date < '2010-01-01'",
+            '2010_01' => "date >= '2010-01-01' and date < '2010-02-01'",
+            '2010_02' => "date >= '2010-02-01' and date < '2010-03-01'",
+            '2010_03' => "date >= '2010-03-01' and date < '2010-04-01'",
+            ),
+            $this->_criteria->condition,
+            'transactions.amount',
+            ''
+            );
+        //"CALL sp_pivot('accounts.name', 'date_format(transactions.date, \"%Y_%m\")', 'transactions.amount', 'transactions join accounts on transactions.account_id = accounts.id', '1=1')";
+        $command=Yii::app()->db->createCommand($sql);
         return $command->queryAll();
 	}
 

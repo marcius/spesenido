@@ -147,14 +147,25 @@ $this->breadcrumbs=array(
         </div>
 
         <div class="column">
-            <?php echo CHtml::activeLabelEx($searchModel,'payer_subject_id'); ?>
-            <?php echo CHtml::activeDropDownList($searchModel,'payer_subject_id',
+            <?php echo CHtml::activeLabelEx($searchModel,'expected_payer_subject_id'); ?>
+            <?php echo CHtml::activeDropDownList($searchModel,'expected_payer_subject_id',
                 CHtml::listData(Subject::model()->findAll(),'id','name'),                 
                 array('prompt'=>' ')
                 ); ?>
-            <?php echo CHtml::error($searchModel,'payer_subject_id'); ?>
+            <?php echo CHtml::error($searchModel,'expected_payer_subject_id'); ?>
         </div>
-        
+
+        <div class="column">
+            <?php echo CHtml::activeLabelEx($searchModel,'actual_payer_subject_id'); ?>
+            <?php echo CHtml::activeDropDownList($searchModel,'actual_payer_subject_id',
+                CHtml::listData(Subject::model()->findAll(),'id','name'),                 
+                array('prompt'=>' ')
+                ); ?>
+            <?php echo CHtml::error($searchModel,'actual_payer_subject_id'); ?>
+        </div>
+    </div>
+
+    <div class="row">
         <div class="column">
             <?php echo CHtml::activeLabelEx($searchModel,'ref_period_date_from'); ?>
             <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(

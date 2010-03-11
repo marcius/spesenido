@@ -20,11 +20,12 @@ return array(
         'log'=>array(
             'class'=>'CLogRouter',
             'routes'=>array(
-                array(
+/*                array(
                   'class'=>'XWebDebugRouter',
                   'config'=>'alignLeft, opaque, runInDebug, fixedPos',
                   'levels'=>'error, warning, trace, profile, info'
                 ), 
+*/                
                 array(
                     'class'=>'CFileLogRoute',
                     'levels'=>'error, warning',
