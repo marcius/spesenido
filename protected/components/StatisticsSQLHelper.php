@@ -7,8 +7,8 @@ class StatisticsSQLHelper
         $where_t .= U::addwhere('t.account_id', '=', U::q('account_id'));
         $where_t .= U::addwhere('t.recipient_subject_id', '=', U::q('recipient_subject_id'));
         $where_t .= U::addwhere('t.payer_subject_id', '=', U::q('expected_payer_subject_id'));
-        $where_t .= U::addwhere('t.counterparty', 'like', U::q('counterparty'));
-        $where_t .= U::addwhere('t.description', 'like', U::q('description'));
+        $where_t .= U::addwhere('t.counterparty', 'like', U::q('counterparty'), 'string');
+        $where_t .= U::addwhere('t.description', 'like', U::q('description'), 'string');
         $where_t .= U::addwhere('t.ref_period_begin_date', '<=', U::q('ref_period_date_from'), 'date');
         $where_t .= U::addwhere('t.ref_period_begin_date', '>=', U::q('ref_period_date_to'), 'date');
         $where_p .= U::addwhere('p.payer_subject_id', '=', U::q('actual_payer_subject_id'));
@@ -18,7 +18,7 @@ class StatisticsSQLHelper
         $where_p .= U::addwhere('p.amount', '>=', U::q('amount_min'));
         $where_p .= U::addwhere('p.amount', '<=', U::q('amount_max'));
         Yii::log('1x'.$where_a);
-        Yii::log('2x'.$where_t);
+        Yii::log('2x'.$where_t);                            
         Yii::log('3x'.$where_p);
         $stmt = "select a.id, a.name, s.sum_amount 
             from accounts a
