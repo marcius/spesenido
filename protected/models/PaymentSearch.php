@@ -15,6 +15,8 @@ class PaymentSearch extends CFormModel
     public $ref_period_date_from;
     public $ref_period_date_to;
     public $sign;
+    public $includeaccounts;
+    public $payment_type_id;
 
 	/**
 	 * Declares the validation rules.

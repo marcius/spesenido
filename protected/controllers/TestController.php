@@ -130,8 +130,8 @@ class TestController extends Controller
 
     public function actionUno()
     {
-        if (U::Filled($_GET['page'])) $usr_pagestart = $_GET['page'];
-        if (U::Filled($_GET['rows'])) $usr_rowsperpage = $_GET['rows'];
+        if (U::filled($_GET['page'])) $usr_pagestart = $_GET['page'];
+        if (U::filled($_GET['rows'])) $usr_rowsperpage = $_GET['rows'];
         $rowstart = $usr_pagestart * $usr_rowsperpage - $usr_rowsperpage;
         $sqlfrom = " FROM accounts";
         $sqllimit = " LIMIT ".$rowstart.", ".$usr_rowsperpage;
@@ -158,8 +158,9 @@ class TestController extends Controller
 public function actionDue()
     {
         $connection = Yii::app()->db;
-        $command=$connection->createCommand("CALL TotalsByAccount(null, null)");
-        $reader=$command->query();
+//        $stmt = "CALL TotalsByAccount(".$account_id.",".$recipient_subject_id.")";
+        $stmt = StatisticsSQLHelper::createStmt_1();
+        $reader=$connection->createCommand($stmt)->query();
         $i=0;
         foreach($reader as $row) {
             $response->rows[$i]['id']=$row[id];

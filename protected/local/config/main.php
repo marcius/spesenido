@@ -28,14 +28,14 @@ return array(
 */                
                 array(
                     'class'=>'CFileLogRoute',
-                    'levels'=>'error, warning',
+                    'levels'=>'error, warning, trace, info',
+                    'categories'=>'',
                 ),
-                // uncomment the following to show log messages on web pages
-                /*
-                array(
+/*                array(
                     'class'=>'CWebLogRoute',
+                    'levels'=>'info',
                 ),
-                */
+*/                    
             ),
         ),
     ),

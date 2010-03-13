@@ -51,11 +51,15 @@ public function actionUpdatedb()
     {
         $connection = Yii::app()->db;
         $stmts = require(dirname(__FILE__).'/sql_sp.php');
-        echo "Updating...";
+        echo "Updating...<br/>";
         foreach($stmts as $stmt) {
             $command=$connection->createCommand($stmt);
+            echo $stmt;
             $command->execute();
+            echo "<br/>";
+            echo "# ";
         }
+        echo "<br/>Completed.";
     }
     
  

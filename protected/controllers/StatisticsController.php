@@ -65,7 +65,11 @@ class StatisticsController extends Controller
 
     public function actionViewAccountCustFilter()
     {
-        $this->render('viewAccountCustFilter');
+        $searchModel=new PaymentSearch;
+        $this->render('viewAccountCustFilter', array(
+                'searchModel'=>$searchModel,
+                )
+        );
     }
 
     public function actionTestJqGrid()

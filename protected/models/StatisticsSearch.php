@@ -57,29 +57,29 @@ class StatisticsSearch extends CFormModel
     {       
         if ($this->_conditions != "") 
             return $this->_conditions;
-        if (U::Filled($this->classification_id)) 
+        if (U::filled($this->classification_id)) 
             $_conditions .= ' and classification_id = '.$this->classification_id;
-        if (U::Filled($this->account_id)) 
+        if (U::filled($this->account_id)) 
             $_conditions .= ' and account_id = '.$this->account_id;
-        if (U::Filled($this->amount_min)) 
+        if (U::filled($this->amount_min)) 
             $_conditions .= ' and amount >= '.$this->amount_min;
-        if (U::Filled($this->amount_max)) 
+        if (U::filled($this->amount_max)) 
             $_conditions .= ' and amount <= '.$this->amount_max;
-        if (U::Filled($this->date_from)) 
+        if (U::filled($this->date_from)) 
             $_conditions .= ' and date >= "'.$this->date_from.'"';
-        if (U::Filled($this->date_to)) 
+        if (U::filled($this->date_to)) 
             $_conditions .= ' and date <= "'.$this->date_to.'"';
-        if (U::Filled($this->ref_period_date_from)) 
+        if (U::filled($this->ref_period_date_from)) 
             $_conditions .= ' and ref_period_end_date >= "'.$this->ref_period_date_from.'"';
-        if (U::Filled($this->ref_period_date_to)) 
+        if (U::filled($this->ref_period_date_to)) 
             $_conditions .= ' and ref_period_begin_date <= "'.$this->ref_period_date_to.'"';
-        if (U::Filled($this->counterparty)) 
+        if (U::filled($this->counterparty)) 
             $_conditions .= ' and counterparty like "%'.$this->counterparty.'%"';
-        if (U::Filled($this->recipient_subject_id)) 
+        if (U::filled($this->recipient_subject_id)) 
             $_conditions .= ' and recipient_subject_id = '.$this->recipient_subject_id;
-        if (U::Filled($this->payer_subject_id)) 
+        if (U::filled($this->payer_subject_id)) 
             $_conditions .= ' and payer_subject_id = '.$this->payer_subject_id;
-        if (U::Filled($this->sign)) 
+        if (U::filled($this->sign)) 
             $_conditions .= ' and accounts.sign = '.$this->sign;
         $this->_conditions = $_conditions;
         return $_conditions;
