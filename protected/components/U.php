@@ -20,6 +20,10 @@ class U
                 $fvalue = "null";
             else
                 return "";
+        } elseif ($oper == "case") {
+            $fvalue = $field[$value]; $field = ""; $oper = "";
+        } elseif ($type == "boolean" && $value == "true") {
+            $fvalue = ""; $oper = "";
         } elseif ($type == "string" && $oper == "like") {
             $fvalue = "'%" . $value . "%'";
         } elseif ($type == "string") {

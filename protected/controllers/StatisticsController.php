@@ -66,6 +66,7 @@ class StatisticsController extends Controller
     public function actionViewAccountCustFilter()
     {
         $searchModel=new PaymentSearch;
+        $searchModel->include_accounts = 'notzero';
         $this->render('viewAccountCustFilter', array(
                 'searchModel'=>$searchModel,
                 )

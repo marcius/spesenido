@@ -1,7 +1,7 @@
 <?php
-return array(
-"DROP PROCEDURE IF EXISTS TotalsByAccount",
-"CREATE DEFINER=`" . Yii::app()->db->username . "`@`localhost` ".
+return array("1" => array(
+    "DROP PROCEDURE IF EXISTS TotalsByAccount",
+    "CREATE DEFINER=`" . Yii::app()->db->username . "`@`localhost` ".
 <<<EOD
 PROCEDURE TotalsByAccount(
 IN payer_subject_id INT,
@@ -23,5 +23,12 @@ EXECUTE stmt;
 
 END
 EOD
-);
+    ), "2" => array(
+    "ALTER TABLE payment_types ADD COLUMN statement VARCHAR(20) NOT NULL DEFAULT 'C/C bancario' AFTER name ",
+    "UPDATE payment_types SET statement = name WHERE id IN (4, 5, 6)"
+
+
+
+    )
+    );
 ?>

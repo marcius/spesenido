@@ -28,7 +28,7 @@ class TestController extends Controller
     {
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
-                'actions'=>array('index','view', 'uno', 'due'),
+                'actions'=>array('index','view', 'accounttotals', 'transactionlist'),
                 'users'=>array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -155,18 +155,21 @@ class TestController extends Controller
         echo json_encode($response);
     }
     
-public function actionDue()
+public function actionAccounttotals()
     {
         $connection = Yii::app()->db;
-//        $stmt = "CALL TotalsByAccount(".$account_id.",".$recipient_subject_id.")";
         $stmt = StatisticsSQLHelper::createStmt_1();
         $reader=$connection->createCommand($stmt)->query();
         $i=0;
+        $response->userdata['name'] = 'Total';
+        $response->userdata['sum_p_amount'] = 0;
+        $response->userdata['sum_t_amount'] = 0;
         foreach($reader as $row) {
             $response->rows[$i]['id']=$row[id];
-            $response->rows[$i]['cell']=array($row[id],$row[name],$row[sum_amount]);
+            $response->rows[$i]['cell']=array($row[id],$row[name],$row[sum_p_amount],$row[sum_t_amount]);
             $i++;
-            $response->userdata['sum_amount'] += $row[sum_amount];
+            $response->userdata['sum_p_amount'] += $row[sum_p_amount];
+            $response->userdata['sum_t_amount'] += $row[sum_t_amount];
         } 
         $response->records = $i;
         $response->total = 1;
@@ -174,6 +177,28 @@ public function actionDue()
         echo json_encode($response);
     }
 
+    public function actionTransactionlist()
+    {
+        if (U::filled($_GET['page'])) $usr_pagestart = $_GET['page'];
+        if (U::filled($_GET['rows'])) $usr_rowsperpage = $_GET['rows'];
+        $rowstart = $usr_pagestart * $usr_rowsperpage - $usr_rowsperpage;
+        $connection = Yii::app()->db;
+        $stmt = StatisticsSQLHelper::createStmt_2();
+        $reader=$connection->createCommand($stmt)->query();
+        $i=0;
+        foreach($reader as $row) {
+            //$response->rows[$i]['id']=$row[p_id];
+            //$response->rows[$i]['cell']=$row;
+            $response->rows[$i]=$row;
+            //Yii::log('['.$i.']'.print_r($row, TRUE));
+            //$response->rows[$i]['cell']=array($row[p_id], $row[p_date], $row[p_amount]);
+            $i++;
+        } 
+        $response->records = $i;
+        $response->total = 1;
+        $response->page = 1;
+        echo json_encode($response);
+    }
     
     
     /**
