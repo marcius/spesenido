@@ -28,7 +28,8 @@ class StatisticsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index', 'viewAccountMonth', 'viewAccountCustFilter', 'testJqGrid'),
+				'actions'=>array('index', 'viewAccountMonth', 'viewAccountCustFilter', 'testJqGrid',
+                    'jsonAccountTotals', 'jsonTransactionList', 'jsonPaymentList'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -73,54 +74,57 @@ class StatisticsController extends Controller
         );
     }
 
-    public function actionTestJqGrid()
+    public function actionJsonAccountTotals()
     {
-        $this->render('testJqGrid');
+        $connection = Yii::app()->db;
+        $stmt = StatisticsSQLHelper::createStmt_1();
+        $stmt .= U::getOrderBy(U::q('sidx'), U::q('sord'));
+        $reader=$connection->createCommand($stmt)->query();
+        $i=0;
+        $response->userdata['name'] = 'Total';
+        $response->userdata['sum_p_amount'] = 0;
+        $response->userdata['sum_t_amount'] = 0;
+        foreach($reader as $row) {
+            $response->rows[$i]['id']=$row[id];
+            $response->rows[$i]['cell']=array($row[id],$row[name],$row[sum_p_amount],$row[sum_t_amount]);
+            $i++;
+            $response->userdata['sum_p_amount'] += $row[sum_p_amount];
+            $response->userdata['sum_t_amount'] += $row[sum_t_amount];
+        } 
+        $response->records = $i;
+        $response->total = 1;
+        $response->page = 1;
+        echo json_encode($response);
     }
 
-    
-    public function actionJqGridTestData()
+    public function actionJsonTransactionList()
     {
-    if (Yii::app()->request->isAjaxRequest) {
-            $criteria=new CDbCriteria;
-            // $criteria->compare(); // here I can filter data
-
-            $page = $_GET['page'];
-            $limit = $_GET['rows'];
-            $sidx = $_GET['sidx']; // get index row - i.e. user click to sort
-            $sord = $_GET['sord']; // get the direction
-
-            $dataProvider = new CActiveDataProvider('Account', array(
-                'criteria'=>$criteria,
-                'pagination'=>array(
-                    'currentPage'=>$page-1, // jqGrid index isn't zero-based
-                    'pageSize'=>$limit,
-                ),
-                'sort'=>array(
-                    'defaultOrder'=>"$sidx $sord",
-                )
-            ));
-
-            $count = $dataProvider->totalItemCount;
-            $total_pages=($count) ? $total_pages = ceil($count/$limit) : $total_pages = 0;
-
-        // prepare json data for jqGrid
-        $response->page = $page;
-        $response->total = $total_pages;
-        $response->records = $count;
-        $data=$dataProvider->getData();
-        foreach($data as $row) {
-            $response->rows[]=array(
-                    'id'=>$row->id,
-                    'cell'=>array(
-                        $row->id,
-                        $row->name,
-                    //...
-                    )
-                );
-            }
-            echo CJavaScript::jsonEncode($response);
+        $stmt = StatisticsSQLHelper::createStmt_2();
+        $response = U::getJsonHeader($stmt, $_GET['page'], $_GET['rows']);
+        $stmt .= U::getOrderBy(U::q('sidx'), U::q('sord')) . U::getLimitClause($_GET['page'], $_GET['rows']);
+        $reader = Yii::app()->db->createCommand($stmt)->query();
+        $i=0;
+        foreach($reader as $row) {
+            $response->rows[$i]=$row;
+            $i++;
+        } 
+        echo json_encode($response);
     }    
-    }
-    
+
+    public function actionJsonPaymentList()
+    {
+        $connection = Yii::app()->db;
+        $stmt = StatisticsSQLHelper::createStmt_3();
+        $reader=$connection->createCommand($stmt)->query();
+        $i=0;
+        foreach($reader as $row) {
+            $response->rows[$i]=$row;
+            $i++;
+        } 
+        $response->records = $i;
+        $response->total = 1;
+        $response->page = 1;
+        echo json_encode($response);
+    }    
+
 }

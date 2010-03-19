@@ -22,13 +22,14 @@ class StatisticsSQLHelper
         $having .= U::addwhere(
             array(''=>'', 'notnull'=>'sum(p.amount) is not null', 'notzero'=>'sum(p.amount) > 0'), 
             'case', U::q('include_accounts'));
-        $stmt = "select a.id, a.name, sum(p.amount) sum_p_amount, sum(t.amount) sum_t_amount
+        $stmt = "select a.id, a.name, sum(p.amount) sum_p_amount, 
+            sum(case (select max(id) from payments where transaction_id = t.id) when p.id then t.amount else 0 end) sum_t_amount
             from accounts a
             left join transactions t on a.id = t.account_id
             left join payments p on t.id = p.transaction_id
-            left join payment_types pt on pt.id = p.payment_type_id
+            left join payment_types pt on pt.id = p.payment_type_id  
             where 1=1" . $where_a . $where_t . $where_p . $where_pt .
-            " group by a.id, a.name";
+            " group by a.id, a.name";        
          if ($having<>"") $stmt .= " having 1=1" . $having;
         return $stmt;
     }
@@ -52,14 +53,25 @@ class StatisticsSQLHelper
         $where_p .= U::addwhere('p.amount', '<=', U::q('amount_max'));
         $where_p .= U::addwhere('p.payer_subject_id <> t.payer_subject_id', '', U::q('diff_payers'), 'boolean');
         $where_pt .= U::addwhere('pt.statement', '=', U::q('statement'), 'string');
-        $stmt = "select p.id p_id, p.date p_date, p.amount p_amount, aps.name aps_name, pt.name pt_name, eps.name eps_name, a.name a_name, t.counterparty t_counterparty
-            from accounts a
-            left join transactions t on a.id = t.account_id
+        $stmt = "select distinct t.id t_id, t.date t_date, a.name a_name, t.amount t_amount, t.counterparty t_counterparty, t.description t_description, rs.name rs_name, eps.name eps_name, t.ref_period_begin_date t_ref_period_begin_date, t.ref_period_end_date t_ref_period_end_date
+            from transactions t 
+            left join accounts a on a.id = t.account_id
             left join payments p on t.id = p.transaction_id
             left join subjects aps on aps.id = p.payer_subject_id
             left join subjects eps on eps.id = t.payer_subject_id
+            left join subjects rs on rs.id = t.recipient_subject_id
             left join payment_types pt on pt.id = p.payment_type_id
             where 1=1" . $where_a . $where_t . $where_p . $where_pt;
+        return $stmt;
+    }
+
+    public static function createStmt_3(){
+        $where_p .= U::addwhere('p.transaction_id', '=', U::q('transaction_id'));
+        $stmt = "select p.id p_id, p.date p_date, p.amount p_amount, aps.name aps_name, pt.name pt_name
+            from payments p
+            left join subjects aps on aps.id = p.payer_subject_id
+            left join payment_types pt on pt.id = p.payment_type_id
+            where 1=1" . $where_p;
         return $stmt;
     }
 

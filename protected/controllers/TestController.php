@@ -154,50 +154,60 @@ class TestController extends Controller
         $response->userdata['col_a'] = $connection->createCommand("SELECT sum(id)".$sqlfrom)->queryScalar();
         echo json_encode($response);
     }
+        //$response->rows[$i]['id']=$row[p_id];
+        //$response->rows[$i]['cell']=$row;
+        //Yii::log('['.$i.']'.print_r($row, TRUE));
+        //$response->rows[$i]['cell']=array($row[p_id], $row[p_date], $row[p_amount]);
     
-public function actionAccounttotals()
+
+    public function actionTestJqGrid()
     {
-        $connection = Yii::app()->db;
-        $stmt = StatisticsSQLHelper::createStmt_1();
-        $reader=$connection->createCommand($stmt)->query();
-        $i=0;
-        $response->userdata['name'] = 'Total';
-        $response->userdata['sum_p_amount'] = 0;
-        $response->userdata['sum_t_amount'] = 0;
-        foreach($reader as $row) {
-            $response->rows[$i]['id']=$row[id];
-            $response->rows[$i]['cell']=array($row[id],$row[name],$row[sum_p_amount],$row[sum_t_amount]);
-            $i++;
-            $response->userdata['sum_p_amount'] += $row[sum_p_amount];
-            $response->userdata['sum_t_amount'] += $row[sum_t_amount];
-        } 
-        $response->records = $i;
-        $response->total = 1;
-        $response->page = 1;
-        echo json_encode($response);
+        $this->render('testJqGrid');
     }
 
-    public function actionTransactionlist()
+    
+    public function actionJqGridTestData()
     {
-        if (U::filled($_GET['page'])) $usr_pagestart = $_GET['page'];
-        if (U::filled($_GET['rows'])) $usr_rowsperpage = $_GET['rows'];
-        $rowstart = $usr_pagestart * $usr_rowsperpage - $usr_rowsperpage;
-        $connection = Yii::app()->db;
-        $stmt = StatisticsSQLHelper::createStmt_2();
-        $reader=$connection->createCommand($stmt)->query();
-        $i=0;
-        foreach($reader as $row) {
-            //$response->rows[$i]['id']=$row[p_id];
-            //$response->rows[$i]['cell']=$row;
-            $response->rows[$i]=$row;
-            //Yii::log('['.$i.']'.print_r($row, TRUE));
-            //$response->rows[$i]['cell']=array($row[p_id], $row[p_date], $row[p_amount]);
-            $i++;
-        } 
-        $response->records = $i;
-        $response->total = 1;
-        $response->page = 1;
-        echo json_encode($response);
+    if (Yii::app()->request->isAjaxRequest) {
+            $criteria=new CDbCriteria;
+            // $criteria->compare(); // here I can filter data
+
+            $page = $_GET['page'];
+            $limit = $_GET['rows'];
+            $sidx = $_GET['sidx']; // get index row - i.e. user click to sort
+            $sord = $_GET['sord']; // get the direction
+
+            $dataProvider = new CActiveDataProvider('Account', array(
+                'criteria'=>$criteria,
+                'pagination'=>array(
+                    'currentPage'=>$page-1, // jqGrid index isn't zero-based
+                    'pageSize'=>$limit,
+                ),
+                'sort'=>array(
+                    'defaultOrder'=>"$sidx $sord",
+                )
+            ));
+
+            $count = $dataProvider->totalItemCount;
+            $total_pages=($count) ? $total_pages = ceil($count/$limit) : $total_pages = 0;
+
+        // prepare json data for jqGrid
+        $response->page = $page;
+        $response->total = $total_pages;
+        $response->records = $count;
+        $data=$dataProvider->getData();
+        foreach($data as $row) {
+            $response->rows[]=array(
+                    'id'=>$row->id,
+                    'cell'=>array(
+                        $row->id,
+                        $row->name,
+                    //...
+                    )
+                );
+            }
+            echo CJavaScript::jsonEncode($response);
+    }    
     }
     
     

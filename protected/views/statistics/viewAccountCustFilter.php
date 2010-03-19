@@ -174,22 +174,29 @@ $this->breadcrumbs=array(
             <?php echo CHtml::error($searchModel,'ref_period_date_to'); ?>
         </div>
     </div>
-
 <?php echo CHtml::endForm(); ?>
-
-
-    <div class="row submit">
-        <button onclick="doSearchA();">Search</button>
-    </div>
 
 </div><!-- form -->
 
+<div class="form">    
+    <div class="row">
+        <div class="column">
+            <button onclick="showAccountTotals();">Show account totals</button>
+        </div>
+        <div class="column">
+            <button onclick="searchTransactions();">Search transactions</button>
+        </div>
+    </div>
+    <div class="row">
+
+<br/>  
 <?php $this->widget('ext.jqgrid.CJuiJqGrid', array(
          'htmlOptions'=>array(
              'id'=>'accounttotals',
          ),
          'navbar'=>false,
          'options'=>array(
+             'hiddengrid'=>true,
              'height'=>'110',
 //             'autowidth'=>true,
              'datatype'=>'json',
@@ -220,28 +227,30 @@ $this->breadcrumbs=array(
          'htmlOptions'=>array(
              'id'=>'transactionlist',
          ),
-         'navbar'=>false,
+         'navbar'=>true,
          'options'=>array(
+             'hiddengrid'=>true,
              'height'=>'auto',
 //             'autowidth'=>true,
              'datatype'=>'json',
-//             'url'=> CController::createUrl('test/transactionlist'),
-             'colNames'=>array('id','date', 'amount', 'actual payer', 'payment type', 'expected payer', 'account', 'counterparty'), 
+             'colNames'=>array('id','date', 'account', 'amount', 'counterparty', 'description', 'recipient', 'expected payer', 'ref period begin', 'ref period end'), 
              'colModel'=>array( 
-                array('index'=>'p_id', 'name'=>'p_id', 'width'=>'80'),
-                array('index'=>'p_date', 'name'=>'p_date', 'width'=>'80'),
-                array('index'=>'p_amount', 'name'=>'p_amount', 'align'=>'right', 'width'=>'80', 'formatter'=>'number'),
-                array('index'=>'aps_name', 'name'=>'aps_name', 'width'=>'80'),
-                array('index'=>'pt_name', 'name'=>'pt_name', 'width'=>'80'),
-                array('index'=>'eps_name', 'name'=>'eps_name', 'width'=>'80'),
+                array('index'=>'t_id', 'name'=>'t_id', 'width'=>'40'),
+                array('index'=>'t_date', 'name'=>'t_date', 'width'=>'80'),
                 array('index'=>'a_name', 'name'=>'a_name', 'width'=>'80'),
-                array('index'=>'t_counterparty', 'name'=>'t_counterparty', 'width'=>'80'),
+                array('index'=>'t_amount', 'name'=>'t_amount', 'align'=>'right', 'width'=>'60', 'formatter'=>'number'),
+                array('index'=>'t_counterparty', 'name'=>'t_counterparty', 'width'=>'100'),
+                array('index'=>'t_description', 'name'=>'t_description', 'width'=>'100'),
+                array('index'=>'rs_name', 'name'=>'rs_name', 'width'=>'80'),
+                array('index'=>'eps_name', 'name'=>'eps_name', 'width'=>'80'),
+                array('index'=>'t_ref_period_begin_date', 'name'=>'t_ref_period_begin_date', 'width'=>'80'),
+                array('index'=>'t_ref_period_end_date', 'name'=>'t_ref_period_end_date', 'width'=>'80'),
              ),
              'rowNum'=>10,
-             'sortname'=>'date',
+             'sortname'=>'t_date',
              'sortorder'=>'desc',
              'caption'=>"Transaction list",
-            // 'viewrecords'=>false,
+             'viewrecords'=>true,
             // 'footerrow' => true,
             // 'userDataOnFooter' => true,
             //'jsonreader'=>array('repeatitems'=>false)
@@ -250,6 +259,43 @@ $this->breadcrumbs=array(
      )
  );
  ?>     
+
+ <br/>
+
+<?php $this->widget('ext.jqgrid.CJuiJqGrid', array(
+         'htmlOptions'=>array(
+             'id'=>'paymentlist',
+         ),
+         'navbar'=>false,
+         'options'=>array(
+             'hiddengrid'=>true,
+             'height'=>'auto',
+             'datatype'=>'json',
+             'colNames'=>array('id','date', 'amount', 'actual payer', 'payment type'), 
+             'colModel'=>array( 
+                array('index'=>'p_id', 'name'=>'p_id', 'width'=>'40'),
+                array('index'=>'p_date', 'name'=>'p_date', 'width'=>'80'),
+                array('index'=>'p_amount', 'name'=>'p_amount', 'align'=>'right', 'width'=>'60', 'formatter'=>'number'),
+                array('index'=>'aps_name', 'name'=>'aps_name', 'width'=>'80'),
+                array('index'=>'pt_name', 'name'=>'pt_name', 'width'=>'100'),
+             ),
+             'rowNum'=>10,
+             'sortname'=>'p_date',
+             'sortorder'=>'desc',
+             'caption'=>"Payment list",
+            // 'viewrecords'=>false,
+            // 'footerrow' => true,
+            // 'userDataOnFooter' => true,
+             'jsonReader'=>array('repeatitems'=>false, 'id' => "0"),
+         )
+     )
+ );
+ ?>     
+
+    </div>
+ </div>
+
+
  
 <?php 
 
@@ -265,12 +311,28 @@ Yii::app()->getClientScript()->registerScript("2",
     "jQuery('#transactionlist_grid').jqGrid('setGridParam',{
         jsonReader : {repeatitems: false, id: \"0\" }
     });");    
+
+Yii::app()->getClientScript()->registerScript("3",
+    "jQuery('#transactionlist_grid').jqGrid('setGridParam',{
+        onSelectRow : function(id) {
+            doSearchP(id);
+        }
+    });");
 ?>      
     
 <script type="text/javascript"> 
 
+function searchTransactions() {
+    toggleGridState('#accounttotals_grid', 'visible');
+    doSearchT(jQuery('#PaymentSearch_account_id').val());
+}
+
+function showAccountTotals() {
+    doSearchA();
+}
+
 function doSearchA(){
-    var search_url = "/index.php?r=test/accounttotals"
+    var search_url = "/index.php?r=statistics/jsonAccountTotals"
         + "&date_from=" + jQuery('#PaymentSearch_date_from').val()
         + "&date_to=" + jQuery('#PaymentSearch_date_to').val()
         + "&account_id=" + jQuery('#PaymentSearch_account_id').val()
@@ -291,11 +353,13 @@ function doSearchA(){
         ;
 //    alert(search_url);
     jQuery('#accounttotals_grid').jqGrid('setGridParam', {url:search_url, page:1}).trigger('reloadGrid');
+    toggleGridState('#accounttotals_grid', 'hidden');
+    toggleGridState('#paymentlist_grid', 'visible');
 } 
 
 function doSearchT(sel_account_id){
     //alert(sel_account_id);
-    var search_url = "/index.php?r=test/transactionlist"
+    var search_url = "/index.php?r=statistics/jsonTransactionList"
         + "&date_from=" + jQuery('#PaymentSearch_date_from').val()
         + "&date_to=" + jQuery('#PaymentSearch_date_to').val()
         + "&account_id=" + sel_account_id
@@ -316,6 +380,28 @@ function doSearchT(sel_account_id){
         ;
 //    alert(search_url);
     jQuery('#transactionlist_grid').jqGrid('setGridParam', {url:search_url, page:1}).trigger('reloadGrid');
+    toggleGridState('#transactionlist_grid', 'hidden');
+    toggleGridState('#paymentlist_grid', 'visible');
 } 
+
+function doSearchP(sel_transaction_id){
+    //alert(sel_account_id);
+    var search_url = "/index.php?r=statistics/jsonPaymentList"
+        + "&transaction_id=" + sel_transaction_id
+        ;
+//    alert(search_url);
+    jQuery('#paymentlist_grid').jqGrid('setGridParam', {url:search_url, page:1}).trigger('reloadGrid');
+    toggleGridState('#paymentlist_grid', 'hidden');
+//    if ($("#paymentlist_grid").jqGrid('getGridParam', 'gridstate') == "hidden") {
+//        $(".HeaderButton", $('#paymentlist_grid')[0].grid.cDiv).trigger("click");
+//    }
+} 
+
+function toggleGridState(grid, state){
+    if ($(grid).jqGrid('getGridParam', 'gridstate') == state) {
+        $(".HeaderButton", $(grid)[0].grid.cDiv).trigger("click");
+    }
+}
+
 </script> 
 
