@@ -75,6 +75,58 @@ class StatisticsSQLHelper
         return $stmt;
     }
 
+    public static function createStmt_3_new($count = false){
+        $where_p .= U::addwhere('p.transaction_id', '=', U::q('transaction_id'));
+        if ($count)
+            $fields = "count(*)";
+        else
+            $fields = "p.id p_id, p.date p_date, p.amount p_amount, aps.name aps_name, pt.name pt_name";
+        $from = "from payments p
+            left join subjects aps on aps.id = p.payer_subject_id
+            left join payment_types pt on pt.id = p.payment_type_id";
+        $stmt = "select ".$fields." ".$from." where 1=1 ".$where_p;
+        return $stmt;
+    }
+
+    public static function createSubjectBalanceStmt(){
+        //$where_p .= U::addwhere('p.transaction_id', '=', U::q('transaction_id'));
+        $fields = "sum(sum_p_amount * mult) as saldo";
+        $from = "from (
+            SELECT sum(p.amount) sum_p_amount, t.payer_subject_id t_payer, p.payer_subject_id p_payer,
+            case
+            when t.payer_subject_id = 1 and p.payer_subject_id = 2 then -1
+            when t.payer_subject_id = 1 and p.payer_subject_id = 3 then -0.5
+            when t.payer_subject_id = 2 and p.payer_subject_id = 1 then 1
+            when t.payer_subject_id = 2 and p.payer_subject_id = 3 then 0.5
+            when t.payer_subject_id = 3 and p.payer_subject_id = 1 then 0.5
+            when t.payer_subject_id = 3 and p.payer_subject_id = 2 then -0.5
+            else null end as mult
+            FROM transactions t
+            join payments p on t.id = p.transaction_id
+            where t.payer_subject_id <> p.payer_subject_id
+            group by t.payer_subject_id, p.payer_subject_id
+            ) x";
+        $stmt = "select ".$fields." ".$from." where 1=1 ".$where_p;
+        return $stmt;
+    }
+
+/*
+    select sum(sum_p_amount * mult) as saldo from (
+
+
+SELECT sum(p.amount) sum_p_amount, t.payer_subject_id t_payer, p.payer_subject_id p_payer,
+case
+when t.payer_subject_id = 1 and p.payer_subject_id = 2 then -1
+when t.payer_subject_id = 2 and p.payer_subject_id = 1 then 1
+when t.payer_subject_id = 3 and p.payer_subject_id = 1 then 0.5
+when t.payer_subject_id = 3 and p.payer_subject_id = 2 then -0.5
+else null end as mult
+FROM transactions t
+join payments p on t.id = p.transaction_id
+where t.payer_subject_id <> p.payer_subject_id
+group by t.payer_subject_id, p.payer_subject_id
+) x;
+*/
 }
 ?>
 

@@ -43,33 +43,70 @@ class StatisticsController extends Controller
         $this->render('index');
     }
 
-	public function actionViewAccountMonth()
-	{
-        $searchModel=new StatisticsSearch;
-        $providerOptions = array();
-        if(isset($_POST['StatisticsSearch']))
+    public function actionViewTest()
+    {
+    $searchModel=new StatisticsSearch;
+    $providerOptions = array();
+    if(isset($_POST['StatisticsSearch']))
+    {
+        $searchModel->setAttributes($_POST['StatisticsSearch'], false);
+        if ($searchModel->validate())
         {
-            $searchModel->setAttributes($_POST['StatisticsSearch'], false);
-            if ($searchModel->validate())
-            {
-                $providerOptions = $searchModel->getProviderOptions();
-            }
+            $providerOptions = $searchModel->getProviderOptions();
         }
-        $dataProvider=new CStatMonthDataProvider('MonthStat', $providerOptions);
-        
-		$this->render('viewAccountMonth', array(
-                'dataProvider'=>$dataProvider,
-                'searchModel'=>$searchModel,
-                )
-        );
-	}
+    }
+    $count=Yii::app()->db->createCommand(StatisticsSQLHelper::createSubjectBalanceStmt(true))->queryScalar();
+    $sql=StatisticsSQLHelper::createSubjectBalanceStmt();
+    $dataProvider=new CSqlDataProvider($sql, array(
+        'id'=>'subjectbalance',
+        'totalItemCount'=>$count,
+        'sort'=>array(
+            'attributes'=>array(
+                 'id', 'username', 'email',
+            ),
+        ),
+        'pagination'=>array(
+            'pageSize'=>10,
+        ),
+    ));
+
+    $this->render('viewSubjectBalance', array(
+        'dataProvider'=>$dataProvider,
+        'searchModel'=>$searchModel,
+        )
+    );
+    }
+
+    public function actionViewAccountMonth()
+    {
+    $searchModel=new StatisticsSearch;
+    $providerOptions = array();
+    if(isset($_POST['StatisticsSearch']))
+    {
+        $searchModel->setAttributes($_POST['StatisticsSearch'], false);
+        if ($searchModel->validate())
+        {
+            $providerOptions = $searchModel->getProviderOptions();
+        }
+    }
+    $dataProvider=new CStatMonthDataProvider('MonthStat', $providerOptions);
+
+            $this->render('viewAccountMonth', array(
+            'dataProvider'=>$dataProvider,
+            'searchModel'=>$searchModel,
+            )
+    );
+    }
 
     public function actionViewAccountCustFilter()
     {
         $searchModel=new PaymentSearch;
         $searchModel->include_accounts = 'notzero';
+        $balance=Yii::app()->db->createCommand(StatisticsSQLHelper::createSubjectBalanceStmt(true))->queryScalar();
+
         $this->render('viewAccountCustFilter', array(
                 'searchModel'=>$searchModel,
+                'balance'=>$balance
                 )
         );
     }
