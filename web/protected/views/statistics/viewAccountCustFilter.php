@@ -186,6 +186,9 @@ $this->breadcrumbs=array(
         <div class="column">
             <button onclick="searchTransactions();">Search transactions</button>
         </div>
+        <div class="column">
+            <button onclick="showSubjBalance();">Show subject balance</button>
+        </div>
     </div>
     <div class="row">
 
@@ -272,8 +275,8 @@ $this->breadcrumbs=array(
              'hiddengrid'=>true,
              'height'=>'auto',
              'datatype'=>'json',
-             'colNames'=>array('id','date', 'amount', 'actual payer', 'payment type'), 
-             'colModel'=>array( 
+             'colNames'=>array('id','date', 'amount', 'actual payer', 'payment type'),
+             'colModel'=>array(
                 array('index'=>'p_id', 'name'=>'p_id', 'width'=>'40'),
                 array('index'=>'p_date', 'name'=>'p_date', 'width'=>'80'),
                 array('index'=>'p_amount', 'name'=>'p_amount', 'align'=>'right', 'width'=>'60', 'formatter'=>'number'),
@@ -284,6 +287,37 @@ $this->breadcrumbs=array(
              'sortname'=>'p_date',
              'sortorder'=>'desc',
              'caption'=>"Payment list",
+            // 'viewrecords'=>false,
+            // 'footerrow' => true,
+            // 'userDataOnFooter' => true,
+             'jsonReader'=>array('repeatitems'=>false, 'id' => "0"),
+         )
+     )
+ );
+ ?>
+
+ <br/>
+
+<?php $this->widget('ext.jqgrid.CJuiJqGrid', array(
+         'htmlOptions'=>array(
+             'id'=>'subjectbalance',
+         ),
+         'navbar'=>false,
+         'options'=>array(
+             'hiddengrid'=>true,
+             'height'=>'auto',
+             'datatype'=>'json',
+             'colNames'=>array('creditore','azione', 'debitore', 'importo'),
+             'colModel'=>array( 
+                array('index'=>'creditore', 'name'=>'creditore', 'width'=>'80'),
+                array('index'=>'azione', 'name'=>'azione', 'width'=>'120'),
+                array('index'=>'debitore', 'name'=>'debitore', 'width'=>'80'),
+                array('index'=>'importo', 'name'=>'importo', 'align'=>'right', 'width'=>'60', 'formatter'=>'number'),
+             ),
+             'rowNum'=>-1,
+            // 'sortname'=>'p_date',
+            // 'sortorder'=>'desc',
+             'caption'=>"Subject balance",
             // 'viewrecords'=>false,
             // 'footerrow' => true,
             // 'userDataOnFooter' => true,
@@ -397,6 +431,31 @@ function doSearchP(sel_transaction_id){
 //        $(".HeaderButton", $('#paymentlist_grid')[0].grid.cDiv).trigger("click");
 //    }
 } 
+
+function showSubjBalance(){
+    var search_url = "/index.php?r=statistics/jsonSubjectBalance"
+        + "&date_from=" + jQuery('#PaymentSearch_date_from').val()
+        + "&date_to=" + jQuery('#PaymentSearch_date_to').val()
+        + "&account_id=" + jQuery('#PaymentSearch_account_id').val()
+        + "&sign=" + jQuery('#PaymentSearch_sign').val()
+        + "&recipient_subject_id=" + jQuery('#PaymentSearch_recipient_subject_id').val()
+        + "&ref_period_date_to=" + jQuery('#PaymentSearch_ref_period_date_to').val()
+        + "&ref_period_date_from=" + jQuery('#PaymentSearch_ref_period_date_from').val()
+        + "&actual_payer_subject_id=" + jQuery('#PaymentSearch_actual_payer_subject_id').val()
+        + "&expected_payer_subject_id=" + jQuery('#PaymentSearch_expected_payer_subject_id').val()
+        + "&amount_min=" + jQuery('#PaymentSearch_amount_min').val()
+        + "&amount_max=" + jQuery('#PaymentSearch_amount_max').val()
+        + "&counterparty=" + jQuery('#PaymentSearch_counterparty').val()
+        + "&description=" + jQuery('#PaymentSearch_description').val()
+        + "&include_accounts=" + jQuery('#PaymentSearch_include_accounts').val()
+        + "&payment_type_id=" + jQuery('#PaymentSearch_payment_type_id').val()
+        + "&diff_payers=" + jQuery('#PaymentSearch_diff_payers').is(':checked')
+        + "&statement=" + jQuery('#PaymentSearch_statement').val()
+        ;
+//    alert(search_url);
+    jQuery('#subjectbalance_grid').jqGrid('setGridParam', {url:search_url, page:1}).trigger('reloadGrid');
+    toggleGridState('#subjectbalance_grid', 'hidden');
+}
 
 function toggleGridState(grid, state){
     if ($(grid).jqGrid('getGridParam', 'gridstate') == state) {
