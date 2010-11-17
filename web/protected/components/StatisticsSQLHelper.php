@@ -89,8 +89,8 @@ class StatisticsSQLHelper
     }
 
     public static function createStmt_SubjectBalance(){
-        $where_t .= U::addwhere('t.ref_period_begin_date', '<=', U::q('ref_period_date_from'), 'date');
-        $where_t .= U::addwhere('t.ref_period_begin_date', '>=', U::q('ref_period_date_to'), 'date');
+        $where_p .= U::addwhere('p.date', '>=', U::q('date_from'), 'date');
+        $where_p .= U::addwhere('p.date', '<=', U::q('date_to'), 'date');
         $stmt = <<<EOD
         select s2.name creditore, azione, s1.name debitore, importo from (
 
