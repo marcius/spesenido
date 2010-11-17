@@ -94,7 +94,7 @@ class StatisticsSQLHelper
         $stmt = <<<EOD
         select s2.name creditore, azione, s1.name debitore, importo from (
 
-        select 'ha pagato per ' as azione, sum(p.amount) importo, t.payer_subject_id t_payer, p.payer_subject_id p_payer
+        select p.payer_subject_id p_payer, 'ha pagato per ' as azione, t.payer_subject_id t_payer, sum(p.amount) importo
         FROM transactions t
         join payments p on t.id = p.transaction_id
         where t.payer_subject_id <> p.payer_subject_id $where_p
