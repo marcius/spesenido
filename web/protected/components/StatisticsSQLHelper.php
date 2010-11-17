@@ -94,36 +94,29 @@ class StatisticsSQLHelper
         $stmt = <<<EOD
         select s2.name creditore, azione, s1.name debitore, importo from (
 
-        select p_payer, 'ha pagato per ' as azione, t_payer, abs(sum_p_amount * mult) as importo from (
-        SELECT sum(p.amount) sum_p_amount, t.payer_subject_id t_payer, p.payer_subject_id p_payer,
-        case
-        when t.payer_subject_id = 1 and p.payer_subject_id = 2 then -1
-        when t.payer_subject_id = 2 and p.payer_subject_id = 1 then 1
-        when t.payer_subject_id = 3 and p.payer_subject_id = 1 then 0.5
-        when t.payer_subject_id = 3 and p.payer_subject_id = 2 then -0.5
-        else null end as mult
+        select 'ha pagato per ' as azione, sum(p.amount) importo, t.payer_subject_id t_payer, p.payer_subject_id p_payer
         FROM transactions t
         join payments p on t.id = p.transaction_id
         where t.payer_subject_id <> p.payer_subject_id $where_p
         group by t.payer_subject_id, p.payer_subject_id
-        ) x1
 
         union all
 
-        select (case when sum(sum_p_amount * mult)>0 then 2 else 1 end)  as creditore,
+        select (case when sum_p_amount>0 then 2 else 1 end)  as creditore,
         'in totale deve a' as azione,
-        (case when sum(sum_p_amount * mult)>0 then 1 else 2 end) as debitore, abs(sum(sum_p_amount * mult)) as importo from (
-        SELECT sum(p.amount) sum_p_amount, t.payer_subject_id t_payer, p.payer_subject_id p_payer,
+        (case when sum_p_amount>0 then 1 else 2 end) as debitore, abs(sum_p_amount) as importo from (
+        SELECT sum(p.amount * (
         case
-        when t.payer_subject_id = 1 and p.payer_subject_id = 2 then -1
-        when t.payer_subject_id = 2 and p.payer_subject_id = 1 then 1
-        when t.payer_subject_id = 3 and p.payer_subject_id = 1 then 0.5
-        when t.payer_subject_id = 3 and p.payer_subject_id = 2 then -0.5
-        else null end as mult
+        when t.payer_subject_id = 1 and p.payer_subject_id = 2 then 1
+        when t.payer_subject_id = 2 and p.payer_subject_id = 1 then -1
+        when t.payer_subject_id = 3 and p.payer_subject_id = 1 then -0.5
+        when t.payer_subject_id = 3 and p.payer_subject_id = 2 then 0.5
+        when t.payer_subject_id = 1 and p.payer_subject_id = 3 then 0.5
+        when t.payer_subject_id = 2 and p.payer_subject_id = 3 then -0.5
+        end)) sum_p_amount
         FROM transactions t
         join payments p on t.id = p.transaction_id
         where t.payer_subject_id <> p.payer_subject_id $where_p
-        group by t.payer_subject_id, p.payer_subject_id
         ) x2
         ) x
         join subjects s1 on x.t_payer = s1.id
@@ -132,47 +125,17 @@ class StatisticsSQLHelper
 EOD;
         return $stmt;
     }
-
-
 /*
-select s2.name creditore, azione, s1.name debitore, importo from (
 
-select p_payer, 'ha pagato per ' as azione, t_payer, abs(sum_p_amount * mult) as importo from (
-SELECT sum(p.amount) sum_p_amount, t.payer_subject_id t_payer, p.payer_subject_id p_payer,
-case
-when t.payer_subject_id = 1 and p.payer_subject_id = 2 then -1
-when t.payer_subject_id = 2 and p.payer_subject_id = 1 then 1
-when t.payer_subject_id = 3 and p.payer_subject_id = 1 then 0.5
-when t.payer_subject_id = 3 and p.payer_subject_id = 2 then -0.5
-else null end as mult
-FROM transactions t
-join payments p on t.id = p.transaction_id
-where t.payer_subject_id <> p.payer_subject_id
-group by t.payer_subject_id, p.payer_subject_id
-) x1
-
-union all
-
-select (case when sum(sum_p_amount * mult)>0 then 2 else 1 end)  as creditore,
-'deve a' as azione,
-(case when sum(sum_p_amount * mult)>0 then 1 else 2 end) as debitore, abs(sum(sum_p_amount * mult)) as importo from (
-SELECT sum(p.amount) sum_p_amount, t.payer_subject_id t_payer, p.payer_subject_id p_payer,
-case
-when t.payer_subject_id = 1 and p.payer_subject_id = 2 then -1
-when t.payer_subject_id = 2 and p.payer_subject_id = 1 then 1
-when t.payer_subject_id = 3 and p.payer_subject_id = 1 then 0.5
-when t.payer_subject_id = 3 and p.payer_subject_id = 2 then -0.5
-else null end as mult
-FROM transactions t
-join payments p on t.id = p.transaction_id
-where t.payer_subject_id <> p.payer_subject_id
-group by t.payer_subject_id, p.payer_subject_id
-) x2
-) x
-join subjects s1 on x.t_payer = s1.id
-join subjects s2 on x.p_payer = s2.id
-;
-*/
+  select (case when sum_p_amount>0 then 2 else 1 end)  as creditore,
+        'in totale deve a' as azione,
+        (case when sum_p_amount>0 then 1 else 2 end) as debitore, abs(sum_p_amount) as importo from (
+        SELECT sum(p.amount * F_SubjBal(t.payer_subject_id, p.payer_subject_id)) sum_p_amount
+        FROM transactions t
+        join payments p on t.id = p.transaction_id
+        where t.payer_subject_id <> p.payer_subject_id
+        ) x2
+ */
 }
 ?>
 
